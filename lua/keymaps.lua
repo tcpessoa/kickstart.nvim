@@ -39,3 +39,23 @@ vim.keymap.set('n', '<leader>bco', '<cmd>BufferLineCloseOthers<cr>', { desc = 'C
 
 -- Pin/unpin a buffer (toggle pin)
 vim.keymap.set('n', '<leader>bp', '<cmd>BufferLineTogglePin<cr>', { desc = 'Toggle pin buffer' })
+
+-- Trouble
+vim.keymap.set('n', '<leader>xx', function()
+  require('trouble').toggle()
+end, { desc = 'Trouble' })
+vim.keymap.set('n', '<leader>xw', function()
+  require('trouble').toggle 'workspace_diagnostics'
+end, { desc = 'Trouble Workspace' })
+vim.keymap.set('n', '<leader>xd', function()
+  require('trouble').toggle 'document_diagnostics'
+end, { desc = 'Trouble Document' })
+vim.keymap.set('n', '<leader>xq', function()
+  require('trouble').toggle 'quickfix'
+end, { desc = 'Trouble Quickfix' })
+vim.keymap.set('n', '<leader>xl', function()
+  require('trouble').toggle 'loclist'
+end, { desc = 'Trouble Loclist' })
+vim.keymap.set('n', 'gR', function()
+  require('trouble').toggle 'lsp_references'
+end, { desc = 'Trouble LSP References' })
