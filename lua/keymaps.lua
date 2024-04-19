@@ -1,5 +1,9 @@
 -- NeoTree
-vim.keymap.set('n', '<leader>o', '<cmd>Neotree toggle<cr>', { desc = 'Toggle Explorer' })
+-- Toggle default NeoTree on the right
+vim.keymap.set('n', '<leader>o', '<cmd>Neotree toggle position=right<cr>', { desc = 'Toggle Explorer' })
+
+-- Open NeoTree in netrw mode, focusing on the current directory
+vim.keymap.set('n', '<leader>O', '<cmd>Neotree show position=current<cr>', { desc = 'Open Explorer at current directory' })
 
 -- Package Manager (Mason)
 vim.keymap.set('n', '<leader>pm', '<cmd>Mason<cr>', { desc = 'Mason Installer' })
