@@ -36,13 +36,13 @@ vim.keymap.set('n', 'L', '<cmd>BufferLineCycleNext<cr>', { desc = 'Next buffer' 
 vim.keymap.set('n', 'H', '<cmd>BufferLineCyclePrev<cr>', { desc = 'Previous buffer' })
 
 -- Close current buffer
-vim.keymap.set('n', '<leader>bcc', '<cmd>bd<cr>', { desc = 'Close current buffer' })
+vim.keymap.set('n', '<leader>bc', '<cmd>bd<cr>', { desc = 'Close [C]urrent buffer' })
 
 -- Close all other buffers
-vim.keymap.set('n', '<leader>bco', '<cmd>BufferLineCloseOthers<cr>', { desc = 'Close all others' })
+vim.keymap.set('n', '<leader>bw', '<cmd>BufferLineCloseOthers<cr>', { desc = 'Close all others' })
 
 -- Pin/unpin a buffer (toggle pin)
-vim.keymap.set('n', '<leader>bp', '<cmd>BufferLineTogglePin<cr>', { desc = 'Toggle pin buffer' })
+vim.keymap.set('n', '<leader>bp', '<cmd>BufferLineTogglePin<cr>', { desc = 'Toggle [P]in buffer' })
 
 -- Trouble
 vim.keymap.set('n', '<leader>xx', function()
