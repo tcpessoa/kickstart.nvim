@@ -63,3 +63,6 @@ end, { desc = 'Trouble Loclist' })
 vim.keymap.set('n', 'gR', function()
   require('trouble').toggle 'lsp_references'
 end, { desc = 'Trouble LSP References' })
+
+-- Keymap to search for modified files in a Git repo using Telescope
+vim.api.nvim_set_keymap('n', '<leader>sm', "<cmd>lua require('telescope.builtin').git_status()<CR>", { desc = '[S]earch git [m]odified files' })
