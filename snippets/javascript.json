@@ -1,0 +1,9 @@
+{
+  "Console Log with Color": {
+    "prefix": "clog",
+    "body": [
+      "console.log(`\\x1b[1;30;42m ${1:someVar}: \\${${1}} \\x1b[0m`);"
+    ],
+    "description": "Log a variable with color"
+  }
+}
