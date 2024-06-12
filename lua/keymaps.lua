@@ -1,3 +1,5 @@
+local utils = require 'utils'
+
 -- NeoTree
 -- Toggle default NeoTree on the right
 vim.keymap.set('n', '<leader>o', '<cmd>Neotree toggle position=right<cr>', { desc = 'Toggle Explorer' })
@@ -45,24 +47,24 @@ vim.keymap.set('n', '<leader>bw', '<cmd>BufferLineCloseOthers<cr>', { desc = 'Cl
 vim.keymap.set('n', '<leader>bp', '<cmd>BufferLineTogglePin<cr>', { desc = 'Toggle [P]in buffer' })
 
 -- Trouble
-vim.keymap.set('n', '<leader>xx', function()
-  require('trouble').toggle()
-end, { desc = 'Trouble' })
-vim.keymap.set('n', '<leader>xw', function()
-  require('trouble').toggle 'workspace_diagnostics'
-end, { desc = 'Trouble Workspace' })
-vim.keymap.set('n', '<leader>xd', function()
-  require('trouble').toggle 'document_diagnostics'
-end, { desc = 'Trouble Document' })
-vim.keymap.set('n', '<leader>xq', function()
-  require('trouble').toggle 'quickfix'
-end, { desc = 'Trouble Quickfix' })
-vim.keymap.set('n', '<leader>xl', function()
-  require('trouble').toggle 'loclist'
-end, { desc = 'Trouble Loclist' })
-vim.keymap.set('n', 'gR', function()
-  require('trouble').toggle 'lsp_references'
-end, { desc = 'Trouble LSP References' })
+vim.keymap.set('n', '<leader>xx', '<cmd>Trouble diagnostics toggle<cr>', { desc = 'Trouble' })
+vim.keymap.set('n', '<leader>xX', '<cmd>Trouble diagnostics toggle filter.buf=0<cr>', { desc = 'Buffer Diagnostics (Trouble)' })
+vim.keymap.set('n', '<leader>xs', '<cmd>Trouble symbols toggle focus=false<cr>', { desc = 'Symbols (Trouble)' })
+-- gR
+vim.keymap.set('n', '<leader>xl', '<cmd>Trouble lsp toggle focus=false win.position=right<cr>', { desc = 'LSP Definitions / references / ... (Trouble)' })
+vim.keymap.set('n', '<leader>xL', '<cmd>Trouble loclist toggle<cr>', { desc = 'Location List (Trouble)' })
+vim.keymap.set('n', '<leader>xQ', '<cmd>Trouble qflist toggle<cr>', { desc = 'Quickfix List (Trouble)' })
 
 -- Keymap to search for modified files in a Git repo using Telescope
 vim.api.nvim_set_keymap('n', '<leader>sm', "<cmd>lua require('telescope.builtin').git_status()<CR>", { desc = '[S]earch git [m]odified files' })
+
+-- Utils
+
+vim.api.nvim_set_keymap('n', '<leader>lc', ":lua require('utils').insert_snippet('clog', false)<CR>", { desc = 'console.log this word' })
+vim.api.nvim_set_keymap('n', '<leader>lj', ":lua require('utils').insert_snippet('clogo', false)<CR>", { desc = 'console.log this object' })
+vim.api.nvim_set_keymap('v', '<leader>lc', ":<C-u>lua require('utils').insert_snippet('clog', true)<CR>", { desc = 'console.log this word' })
+vim.api.nvim_set_keymap('v', '<leader>lj', ":<C-u>lua require('utils').insert_snippet('clogo', true)<CR>", { desc = 'console.log this object' })
+
+vim.api.nvim_set_keymap('n', '<leader>lr', ":lua require('utils').fzf_run()<CR>", { desc = 'Run a script' })
+vim.api.nvim_set_keymap('n', '<leader>ln', ":lua require('utils').run_node(false)<CR>", { desc = 'Run line in Node' })
+vim.api.nvim_set_keymap('v', '<leader>ln', ":lua require('utils').run_node(true)<CR>", { desc = 'Run selection in Node' })

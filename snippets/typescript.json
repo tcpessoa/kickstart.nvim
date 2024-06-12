@@ -5,5 +5,12 @@
       "console.log(`\\x1b[1;30;42m ${1:someVar}: \\${${1}} \\x1b[0m`);"
     ],
     "description": "Log a variable with color"
+  },
+  "Console Log Object with Color JSON.stringify": {
+    "prefix": "clogo",
+    "body": [
+      "console.log(`\\x1b[1;30;42m ${1:someVar}: \\${JSON.stringify(${1}, null, 2)} \\x1b[0m`);"
+    ],
+    "description": "Log an object with color"
   }
 }
