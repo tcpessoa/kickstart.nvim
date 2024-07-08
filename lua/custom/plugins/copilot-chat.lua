@@ -3,7 +3,7 @@ return {
     'CopilotC-Nvim/CopilotChat.nvim',
     branch = 'canary',
     dependencies = {
-      { 'zbirenbaum/copilot.lua' },
+      { 'github/copilot.vim' },
       { 'nvim-lua/plenary.nvim' },
     },
     opts = {
