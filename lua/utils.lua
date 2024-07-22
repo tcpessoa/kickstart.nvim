@@ -117,13 +117,49 @@ function M.run_node(from_visual)
   -- Write the code to a temporary file
   local tmp_file = vim.fn.tempname() .. '.js'
   local file = io.open(tmp_file, 'w')
-  file:write(code)
-  file:close()
+  if file == nil then
+    vim.notify('Failed to open file for writing: ' .. tmp_file, vim.log.levels.ERROR)
+  else
+    file:write(code)
+    file:close()
+  end
 
   -- Load file content to node REPL and leave it open
   local cmd = 'vsplit term://node -i -e \\"$(< ' .. tmp_file .. ' )\\"'
 
   vim.cmd(cmd)
+end
+
+function M.system_open(path)
+  if not path then
+    path = vim.fn.expand '<cfile>'
+  elseif not path:match '%w+:' then
+    path = vim.fn.expand(path)
+  end
+  -- TODO: remove deprecated method check after dropping support for neovim v0.9
+  if vim.ui.open then
+    return vim.ui.open(path)
+  end
+  local cmd
+  if vim.fn.has 'mac' == 1 then
+    cmd = { 'open' }
+  elseif vim.fn.has 'win32' == 1 then
+    if vim.fn.executable 'rundll32' then
+      cmd = { 'rundll32', 'url.dll,FileProtocolHandler' }
+    else
+      cmd = { 'cmd.exe', '/K', 'explorer' }
+    end
+  elseif vim.fn.has 'unix' == 1 then
+    if vim.fn.executable 'explorer.exe' == 1 then
+      cmd = { 'explorer.exe' }
+    elseif vim.fn.executable 'xdg-open' == 1 then
+      cmd = { 'xdg-open' }
+    end
+  end
+  if not cmd then
+    vim.notify('Available system opening tool not found!', vim.log.levels.ERROR)
+  end
+  vim.fn.jobstart(vim.list_extend(cmd, { path }), { detach = true })
 end
 
 return M
