@@ -59,7 +59,7 @@ return {
         },
       },
       window = {
-        position = 'float',
+        position = 'left',
       },
       commands = {
         system_open = function(state)
