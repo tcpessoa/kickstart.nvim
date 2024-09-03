@@ -75,3 +75,72 @@ vim.opt.number = false
 
 -- This is for Web Dev icons for NeoTree and Telescope
 vim.g.have_nerd_font = true
+
+-- [[ Custom autocommands ]]
+local function parse_error(output, filetype)
+  local file = vim.fn.expand '%:p'
+  if filetype == 'json' then
+    local line, col = output:match 'line (%d+), column (%d+)'
+    if line and col then
+      return { { filename = file, lnum = tonumber(line), col = tonumber(col), text = output } }
+    end
+  elseif filetype == 'yaml' or filetype == 'yml' then
+    local line = output:match 'line (%d+):'
+    if line then
+      return { { filename = file, lnum = tonumber(line), col = 1, text = output } }
+    end
+  end
+  return { { filename = file, lnum = 1, col = 1, text = output } }
+end
+
+local function format_buffer()
+  local filetype = vim.bo.filetype
+  local cmd, args
+  if filetype == 'json' then
+    cmd = 'jq'
+    args = '.'
+  elseif filetype == 'yaml' or filetype == 'yml' then
+    cmd = 'yq'
+    args = 'eval .'
+  else
+    vim.notify('Unsupported filetype for formatting', vim.log.levels.WARN)
+    return
+  end
+
+  -- Get buffer contents
+  local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
+  local content = table.concat(lines, '\n')
+
+  -- Run the formatter
+  local output = vim.fn.system(string.format('%s %s', cmd, args), content)
+  local exit_code = vim.v.shell_error
+
+  if exit_code ~= 0 then
+    -- Formatting failed, create quickfix list with error
+    local qf_entries = parse_error(output, filetype)
+    vim.fn.setqflist({}, ' ', {
+      title = 'Formatting Error',
+      items = qf_entries,
+    })
+    vim.cmd 'copen'
+    vim.notify('Formatting failed. See quickfix list for details.', vim.log.levels.ERROR)
+  else
+    -- Formatting succeeded, update buffer
+    local formatted_lines = vim.split(output, '\n')
+    vim.api.nvim_buf_set_lines(0, 0, -1, false, formatted_lines)
+    vim.notify('Formatting successful', vim.log.levels.INFO)
+  end
+end
+
+-- Set up autocommands for YAML and JSON files
+vim.api.nvim_create_autocmd('FileType', {
+  pattern = { 'yaml', 'yml', 'json' },
+  callback = function()
+    vim.api.nvim_buf_set_keymap(0, 'n', '<leader>lf', '', {
+      noremap = true,
+      silent = true,
+      callback = format_buffer,
+      desc = 'Format file with yq/jq',
+    })
+  end,
+})
