@@ -4,6 +4,7 @@ return {
   lazy = false,
   opts = {
     -- add any opts here
+    provider = 'copilot', -- Recommend using Claude
   },
   -- if you want to download pre-built binary, then pass source=false. Make sure to follow instruction above.
   -- Also note that downloading prebuilt binary is a lot faster comparing to compiling from source.
