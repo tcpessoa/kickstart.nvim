@@ -162,4 +162,48 @@ function M.system_open(path)
   vim.fn.jobstart(vim.list_extend(cmd, { path }), { detach = true })
 end
 
+function M.escape_for_regex()
+  -- Reselect the visual selection
+  vim.cmd 'normal! gv'
+  local start_pos = vim.fn.getpos "'<"
+  local end_pos = vim.fn.getpos "'>"
+  if start_pos[2] > end_pos[2] or (start_pos[2] == end_pos[2] and start_pos[3] > end_pos[3]) then
+    -- Swap if start is after end
+    start_pos, end_pos = end_pos, start_pos
+  end
+
+  local start_line, start_col = start_pos[2] - 1, start_pos[3] - 1
+  local end_line, end_col = end_pos[2] - 1, end_pos[3]
+
+  -- Handle line-wise visual mode (Shift+V)
+  if end_col == 2147483647 then
+    end_col = -1 -- Use -1 to represent the end of the line
+  end
+
+  -- Handle multi-line selections and selections ending at the start of a line
+  if start_line ~= end_line or end_col == -1 then
+    end_line = end_line + 1
+
+    end_col = 0
+  else
+    end_col = end_col + 1
+  end
+
+  local lines = vim.api.nvim_buf_get_text(0, start_line, start_col, end_line, end_col, {})
+  local text = table.concat(lines, '\n')
+
+  -- Escape special regex characters
+  local escaped_text = text:gsub('([()[%]{}.*+?^$|\\])', '\\%1')
+
+  -- Put in the clipboard (both + and " registers)
+  vim.fn.setreg('+', escaped_text)
+  vim.fn.setreg('"', escaped_text)
+
+  -- Exit visual mode
+  local esc = vim.api.nvim_replace_termcodes('<esc>', true, false, true)
+  vim.api.nvim_feedkeys(esc, 'x', false)
+
+  print 'Regex-escaped text copied to clipboard'
+end
+
 return M

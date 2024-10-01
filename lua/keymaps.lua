@@ -81,3 +81,4 @@ vim.api.nvim_set_keymap('v', '<leader>lj', ":<C-u>lua require('utils').insert_sn
 vim.api.nvim_set_keymap('n', '<leader>lr', ":lua require('utils').fzf_run()<CR>", { desc = 'Run a script' })
 vim.api.nvim_set_keymap('n', '<leader>ln', ":lua require('utils').run_node(false)<CR>", { desc = 'Run line in Node' })
 vim.api.nvim_set_keymap('v', '<leader>ln', ":lua require('utils').run_node(true)<CR>", { desc = 'Run selection in Node' })
+vim.api.nvim_set_keymap('v', '<leader>le', ":lua require('utils').escape_for_regex()<CR>", { desc = 'Escape for regex' })
