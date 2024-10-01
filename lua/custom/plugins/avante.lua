@@ -15,7 +15,7 @@ return {
     'MunifTanjim/nui.nvim',
     --- The below dependencies are optional,
     'nvim-tree/nvim-web-devicons', -- or echasnovski/mini.icons
-    'zbirenbaum/copilot.lua', -- for providers='copilot'
+    'zbirenbaum/copilot.vim', -- for providers='copilot'
     {
       -- Make sure to setup it properly if you have lazy=true
       'MeanderingProgrammer/render-markdown.nvim',
