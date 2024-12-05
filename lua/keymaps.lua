@@ -71,14 +71,23 @@ vim.keymap.set({ 'n', 'v' }, '<leader>ccp', function()
   local actions = require 'CopilotChat.actions'
   require('CopilotChat.integrations.telescope').pick(actions.prompt_actions())
 end, { desc = 'CopilotChat - Prompt actions' })
--- Utils
 
+-- Utils
 vim.api.nvim_set_keymap('n', '<leader>lc', ":lua require('utils').insert_snippet('clog', false)<CR>", { desc = 'console.log this word' })
 vim.api.nvim_set_keymap('n', '<leader>lj', ":lua require('utils').insert_snippet('clogo', false)<CR>", { desc = 'console.log this object' })
 vim.api.nvim_set_keymap('v', '<leader>lc', ":<C-u>lua require('utils').insert_snippet('clog', true)<CR>", { desc = 'console.log this word' })
 vim.api.nvim_set_keymap('v', '<leader>lj', ":<C-u>lua require('utils').insert_snippet('clogo', true)<CR>", { desc = 'console.log this object' })
 
-vim.api.nvim_set_keymap('n', '<leader>lr', ":lua require('utils').fzf_run()<CR>", { desc = 'Run a script' })
-vim.api.nvim_set_keymap('n', '<leader>ln', ":lua require('utils').run_node(false)<CR>", { desc = 'Run line in Node' })
-vim.api.nvim_set_keymap('v', '<leader>ln', ":lua require('utils').run_node(true)<CR>", { desc = 'Run selection in Node' })
-vim.api.nvim_set_keymap('v', '<leader>le', ":lua require('utils').escape_for_regex()<CR>", { desc = 'Escape for regex' })
+vim.keymap.set('n', '<leader>lr', require('utils').fzf_run, { desc = 'Run a script' })
+vim.keymap.set('n', '<leader>ln', function()
+  require('utils').run_node(false)
+end, { desc = 'Run line in Node' })
+vim.keymap.set('v', '<leader>ln', function()
+  require('utils').run_node(true)
+end, { desc = 'Run selection in Node' })
+vim.keymap.set('v', '<leader>lo', function()
+  require('utils').run_node_with_obj(true)
+end, { desc = 'Analyze object in Node' })
+vim.keymap.set('v', '<leader>le', require('utils').escape_for_regex, { desc = 'Escape for regex' })
+
+vim.keymap.set('n', '<leader>lg', require('utils').open_commit_files, { desc = '[G]it commit files' })

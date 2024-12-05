@@ -38,6 +38,9 @@ function M.insert_snippet(snippet_name, from_visual)
   vim.api.nvim_feedkeys(esc, 'x', false)
 end
 
+-- Run a script from the `Makefile` or `package.json`
+-- This function will open a telescope picker with all the scripts found in the Makefile or package.json
+-- It runs as a detached job in a new tmux split
 function M.fzf_run()
   local makefile_exists = vim.fn.filereadable 'Makefile' == 1
   local package_json_exists = vim.fn.filereadable 'package.json' == 1
@@ -99,7 +102,8 @@ function M.fzf_run()
     :find()
 end
 
-function M.run_node(from_visual)
+-- Base function that handles the common logic
+function M.run_in_node(from_visual, transform)
   local line_start, line_end
 
   if from_visual then
@@ -114,7 +118,10 @@ function M.run_node(from_visual)
   local lines = vim.api.nvim_buf_get_lines(0, line_start - 1, line_end, false)
   local code = table.concat(lines, '\n')
 
-  -- Write the code to a temporary file
+  if transform then
+    code = transform(code)
+  end
+
   local tmp_file = vim.fn.tempname() .. '.js'
   local file = io.open(tmp_file, 'w')
   if file == nil then
@@ -126,10 +133,29 @@ function M.run_node(from_visual)
 
   -- Load file content to node REPL and leave it open
   local cmd = 'vsplit term://node -i -e \\"$(< ' .. tmp_file .. ' )\\"'
-
   vim.cmd(cmd)
 end
 
+-- Run current line or visual selection in Node REPL
+function M.run_node(from_visual)
+  M.run_in_node(from_visual) -- No transform, code as is
+end
+
+-- Analyze the current object in Node REPL
+-- This function will load the object as `obj` in the Node REPL
+function M.run_node_with_obj(from_visual)
+  M.run_in_node(from_visual, function(code)
+    return string.format(
+      [[
+const obj = %s;
+console.log('Object loaded as "obj". You can explore it.');
+    ]],
+      code
+    )
+  end)
+end
+
+-- Open the current file with the system's default application
 function M.system_open(path)
   if not path then
     path = vim.fn.expand '<cfile>'
@@ -204,6 +230,38 @@ function M.escape_for_regex()
   vim.api.nvim_feedkeys(esc, 'x', false)
 
   print 'Regex-escaped text copied to clipboard'
+end
+
+-- open_commit_files: Open the files modified in a commit
+function M.open_commit_files()
+  local actions = require 'telescope.actions'
+  local action_state = require 'telescope.actions.state'
+  local previewers = require 'telescope.previewers'
+  local files_previewer = previewers.new_buffer_previewer {
+    title = 'Modified Files',
+    define_preview = function(self, entry)
+      local hash = entry.value
+      local files = vim.fn.systemlist('git diff-tree --no-commit-id --name-only -r ' .. hash)
+      local content = 'Modified files:\n\n' .. table.concat(files, '\n')
+      vim.api.nvim_buf_set_lines(self.state.bufnr, 0, -1, false, vim.split(content, '\n'))
+    end,
+  }
+
+  require('telescope.builtin').git_commits {
+    previewer = files_previewer,
+    attach_mappings = function(_, map)
+      map('i', '<CR>', function(prompt_bufnr)
+        local selection = action_state.get_selected_entry()
+        local hash = selection.value
+        actions.close(prompt_bufnr)
+        local files = vim.fn.systemlist('git diff-tree --no-commit-id --name-only -r ' .. hash)
+        for _, file in ipairs(files) do
+          vim.cmd('edit ' .. file)
+        end
+      end)
+      return true
+    end,
+  }
 end
 
 return M
