@@ -1,0 +1,5 @@
+/add       init.lua
+/add       lua/custom/plugins/avante.lua
+/add       lua/keymaps.lua
+/add       lua/options.lua
+/read-only CONVENTIONS.md

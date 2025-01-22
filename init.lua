@@ -390,6 +390,19 @@ require('lazy').setup({
         --   },
         -- },
         -- pickers = {}
+        defaults = {
+          layout_strategy = 'horizontal',
+          layout_config = {
+            horizontal = {
+              height = 0.95,
+              preview_height = 0.5,
+              mirror = false,
+            },
+          },
+          path_display = {
+            'smart', -- this is to show the relative path of the file, useful for long paths
+          },
+        },
         extensions = {
           ['ui-select'] = {
             require('telescope.themes').get_dropdown(),
