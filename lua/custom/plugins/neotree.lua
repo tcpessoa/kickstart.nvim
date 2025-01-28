@@ -80,10 +80,10 @@ return {
           local modify = vim.fn.fnamemodify
 
           local vals = {
+            ['0: PATH (CWD)'] = modify(filepath, ':.'),
             ['BASENAME'] = modify(filename, ':r'),
             ['EXTENSION'] = modify(filename, ':e'),
             ['FILENAME'] = filename,
-            ['PATH (CWD)'] = modify(filepath, ':.'),
             ['PATH (HOME)'] = modify(filepath, ':~'),
             ['PATH'] = filepath,
             ['URI'] = vim.uri_from_fname(filepath),
