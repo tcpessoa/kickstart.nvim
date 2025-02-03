@@ -264,4 +264,18 @@ function M.open_commit_files()
   }
 end
 
+function M.create_or_toggle_checkbox()
+  local line = vim.api.nvim_get_current_line()
+  if not line:match '- %[.?%]' then
+    -- Line doesn't have a checkbox, create one
+    vim.api.nvim_set_current_line('- [ ] ' .. line:gsub('^%s*-%s*', ''))
+  else
+    -- Toggle existing checkbox
+    local new_line = line:gsub('%[.%]', function(match)
+      return match == '[ ]' and '[x]' or '[ ]'
+    end)
+    vim.api.nvim_set_current_line(new_line)
+  end
+end
+
 return M
