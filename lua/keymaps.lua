@@ -1,5 +1,3 @@
-local utils = require 'utils'
-
 -- NeoTree
 -- Toggle default NeoTree on the right
 vim.keymap.set('n', '<leader>o', '<cmd>Neotree toggle<cr>', { desc = 'Toggle Explorer' })
@@ -22,14 +20,6 @@ vim.keymap.set('n', '|', '<cmd>vsplit<cr>', { desc = 'Vertical Split' })
 vim.keymap.set('n', '\\', '<cmd>split<cr>', { desc = 'Horizontal Split' })
 
 -- Buffer operations
-
---[[
-  %bd = delete all buffers.
-  e# = open the last buffer for editing (Which Is the buffer I'm working on).
-  bd# to delete the [No Name] buffer that gets created when you use %bd.
-  '" = keep my cursor position
---]]
--- vim.keymap.set('n', '<leader>bC', '<cmd>%bd|e#|bd#<cr>|\'"<cr>', { desc = 'Close all buffers except this one' })
 
 -- Go to the next buffer
 vim.keymap.set('n', 'L', '<cmd>BufferLineCycleNext<cr>', { desc = 'Next buffer' })
@@ -82,3 +72,30 @@ vim.keymap.set('v', '<leader>le', require('utils').escape_for_regex, { desc = '[
 vim.keymap.set('n', '<leader>lg', require('utils').open_commit_files, { desc = 'Open [g]it commit files' })
 
 vim.keymap.set('n', '<leader>lt', require('utils').create_or_toggle_checkbox, { desc = '[T]oggle checkbox' })
+
+vim.keymap.set('n', '<leader>ta', function()
+  _G.toggle_autocomplete()
+end, { noremap = true, desc = '[t]oggle [a]utocompletion' })
+
+-- COPILOT
+_G.toggle_copilot = function()
+  local enabled = vim.g.copilot_enabled or false
+
+  if enabled then
+    vim.cmd 'Copilot disable'
+    vim.notify('Copilot disabled', vim.log.levels.INFO)
+  else
+    vim.cmd 'Copilot enable'
+    vim.notify('Copilot enabled', vim.log.levels.INFO)
+  end
+
+  vim.g.copilot_enabled = not enabled
+end
+
+if vim.g.copilot_enabled == nil then
+  vim.g.copilot_enabled = true
+end
+
+vim.keymap.set('n', '<leader>tc', function()
+  _G.toggle_copilot()
+end, { noremap = true, desc = '[t]oggle [c]opilot' })

@@ -402,7 +402,7 @@ require('lazy').setup({
             },
           },
           path_display = {
-            'smart', -- this is to show the relative path of the file, useful for long paths
+            'smart', -- this is to show a shorter path of the file, useful for long paths
           },
         },
         extensions = {
@@ -796,6 +796,7 @@ require('lazy').setup({
       --  into multiple repos for maintenance purposes.
       'hrsh7th/cmp-nvim-lsp',
       'hrsh7th/cmp-path',
+      'hrsh7th/cmp-buffer',
     },
     config = function()
       -- See `:help cmp`
@@ -803,13 +804,44 @@ require('lazy').setup({
       local luasnip = require 'luasnip'
       luasnip.config.setup {}
 
+      -- Add a variable to track the toggle state
+      local is_autocomplete_enabled = true
+
+      -- Function to toggle autocompletion
+      local function toggle_autocomplete()
+        is_autocomplete_enabled = not is_autocomplete_enabled
+
+        cmp.setup {
+          completion = {
+            autocomplete = is_autocomplete_enabled and {
+              cmp.TriggerEvent.TextChanged,
+              cmp.TriggerEvent.InsertEnter,
+            } or false,
+            completeopt = 'menu,menuone,noinsert',
+          },
+        }
+
+        -- Notify user of current state
+        vim.notify(is_autocomplete_enabled and 'Autocompletion enabled' or 'Autocompletion disabled', vim.log.levels.INFO)
+      end
+
+      -- Make the toggle function globally available
+      _G.toggle_autocomplete = toggle_autocomplete
+
       cmp.setup {
         snippet = {
           expand = function(args)
             luasnip.lsp_expand(args.body)
           end,
         },
-        completion = { completeopt = 'menu,menuone,noinsert' },
+        completion = {
+          -- Initial state (enabled by default)
+          autocomplete = is_autocomplete_enabled and {
+            cmp.TriggerEvent.TextChanged,
+            cmp.TriggerEvent.InsertEnter,
+          } or false,
+          completeopt = 'menu,menuone,noinsert',
+        },
 
         -- For an understanding of why these mappings were
         -- chosen, you will need to read `:help ins-completion`
@@ -864,17 +896,42 @@ require('lazy').setup({
           --    https://github.com/L3MON4D3/LuaSnip?tab=readme-ov-file#keymaps
         },
         sources = {
-          {
-            name = 'lazydev',
-            -- set group index to 0 to skip loading LuaLS completions as lazydev recommends it
-            group_index = 0,
-          },
           { name = 'copilot', group_index = 2 },
           { name = 'nvim_lsp' },
           { name = 'luasnip' },
           { name = 'path' },
         },
+        window = {
+          completion = {
+            border = 'rounded',
+            winhighlight = 'Normal:Normal,FloatBorder:FloatBorder,CursorLine:Visual,Search:None',
+            zindex = 1001,
+            scrolloff = 0,
+            col_offset = 0,
+            side_padding = 1,
+          },
+          documentation = {
+            border = 'rounded',
+            winhighlight = 'Normal:Normal,FloatBorder:FloatBorder,CursorLine:Visual,Search:None',
+            max_height = 15,
+            max_width = 80,
+            zindex = 1001,
+          },
+        },
+        view = {
+          max_height = 10,
+          entries = { name = 'custom', selection_order = 'near_cursor' },
+        },
       }
+      cmp.setup.cmdline('/', {
+        mapping = cmp.mapping.preset.cmdline(),
+        sources = {
+          { name = 'buffer' },
+        },
+        view = {
+          entries = { name = 'wildmenu', separator = '|' },
+        },
+      })
     end,
   },
 
