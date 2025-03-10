@@ -61,17 +61,6 @@ vim.keymap.set('n', '<leader>xQ', '<cmd>Trouble qflist toggle<cr>', { desc = 'Qu
 -- Keymap to search for modified files in a Git repo using Telescope
 vim.api.nvim_set_keymap('n', '<leader>sm', "<cmd>lua require('telescope.builtin').git_status()<CR>", { desc = '[S]earch git [m]odified files' })
 
--- Copilot Chat
-vim.keymap.set({ 'n', 'v' }, '<leader>cch', function()
-  local actions = require 'CopilotChat.actions'
-  require('CopilotChat.integrations.telescope').pick(actions.help_actions())
-end, { desc = 'CopilotChat - Help actions' })
-
-vim.keymap.set({ 'n', 'v' }, '<leader>ccp', function()
-  local actions = require 'CopilotChat.actions'
-  require('CopilotChat.integrations.telescope').pick(actions.prompt_actions())
-end, { desc = 'CopilotChat - Prompt actions' })
-
 -- Utils
 vim.api.nvim_set_keymap('n', '<leader>lc', ":lua require('utils').insert_snippet('clog', false)<CR>", { desc = '[C]onsole.log this word' })
 vim.api.nvim_set_keymap('n', '<leader>lj', ":lua require('utils').insert_snippet('clogo', false)<CR>", { desc = 'Console.log with [J]SON.stringify' })
