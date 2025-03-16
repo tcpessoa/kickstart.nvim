@@ -99,3 +99,11 @@ end
 vim.keymap.set('n', '<leader>tc', function()
   _G.toggle_copilot()
 end, { noremap = true, desc = '[t]oggle [c]opilot' })
+
+-- Diffview
+vim.keymap.set('n', '<leader>gd', '<cmd>DiffviewOpen<cr>', { desc = 'DiffviewOpen' })
+vim.keymap.set('n', '<leader>gc', '<cmd>DiffviewClose<cr>', { desc = 'DiffviewClose' })
+vim.keymap.set('n', '<leader>gh', '<cmd>DiffviewFileHistory<cr>', { desc = 'DiffviewFileHistory' })
+vim.keymap.set('n', '<leader>gf', '<cmd>DiffviewFileHistory %<cr>', { desc = 'DiffviewFileHistory (current file)' })
+vim.keymap.set('n', '<leader>gr', '<cmd>DiffviewRefresh<cr>', { desc = 'DiffviewRefresh' })
+vim.keymap.set('n', '<leader>gt', '<cmd>DiffviewToggleFiles<cr>', { desc = 'DiffviewToggleFiles' })

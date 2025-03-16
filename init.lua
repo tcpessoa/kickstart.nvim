@@ -314,9 +314,11 @@ require('lazy').setup({
       },
 
       spec = {
+        { '<leader>b', group = '[A]vante' },
         { '<leader>b', group = '[B]uffers' },
         { '<leader>c', group = '[C]ode' },
         { '<leader>d', group = '[D]ocument' },
+        { '<leader>g', group = '[G]it' },
         { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } },
         { '<leader>l', group = 'Uti[L]s', mode = { 'n', 'v' } },
         { '<leader>p', group = '[P]ackages' },
@@ -324,7 +326,7 @@ require('lazy').setup({
         { '<leader>s', group = '[S]earch' },
         { '<leader>t', group = '[T]oggle' },
         { '<leader>w', group = '[W]orkspace' },
-        { '<leader>x', group = '[X] - Trouble' },
+        { '<leader>x', group = '[X] Trouble' },
       },
     },
   },
