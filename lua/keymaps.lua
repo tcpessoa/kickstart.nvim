@@ -1,13 +1,8 @@
--- NeoTree
--- Toggle default NeoTree on the right
-vim.keymap.set('n', '<leader>o', '<cmd>Neotree toggle<cr>', { desc = 'Toggle Explorer' })
-
--- Open NeoTree in netrw mode, focusing on the current directory
-vim.keymap.set('n', '<leader>O', '<cmd>Neotree show position=current<cr>', { desc = 'Open Explorer at current directory' })
+-- mini files
+vim.keymap.set('n', '<leader>o', '<cmd>lua MiniFiles.open()<cr>', { desc = 'Toggle Explorer' })
 
 -- Package Manager (Mason)
 vim.keymap.set('n', '<leader>pm', '<cmd>Mason<cr>', { desc = 'Mason Installer' })
-vim.keymap.set('n', '<leader>pM', '<cmd>MasonUpdateAll<cr>', { desc = 'Mason Update' })
 
 -- Standard Operations
 vim.keymap.set('n', '<leader>w', '<cmd>w<cr>', { desc = 'Save' })
@@ -23,16 +18,16 @@ vim.keymap.set('n', '\\', '<cmd>split<cr>', { desc = 'Horizontal Split' })
 
 -- Go to the next buffer
 vim.keymap.set('n', 'L', '<cmd>BufferLineCycleNext<cr>', { desc = 'Next buffer' })
-
 -- Go to the previous buffer
 vim.keymap.set('n', 'H', '<cmd>BufferLineCyclePrev<cr>', { desc = 'Previous buffer' })
-
 -- Close current buffer
 vim.keymap.set('n', '<leader>bc', '<cmd>bd<cr>', { desc = 'Close [C]urrent buffer' })
-
 -- Close all other buffers
 vim.keymap.set('n', '<leader>bw', '<cmd>BufferLineCloseOthers<cr>', { desc = 'Close all others' })
-
+-- Close buffers to the right
+vim.keymap.set('n', '<leader>bl', '<cmd>BufferLineCloseRight<cr>', { desc = 'Close buffers to the right' })
+-- Close buffers to the left
+vim.keymap.set('n', '<leader>bh', '<cmd>BufferLineCloseLeft<cr>', { desc = 'Close buffers to the left' })
 -- Pin/unpin a buffer (toggle pin)
 vim.keymap.set('n', '<leader>bp', '<cmd>BufferLineTogglePin<cr>', { desc = 'Toggle [P]in buffer' })
 
@@ -76,6 +71,10 @@ vim.keymap.set('n', '<leader>lt', require('utils').create_or_toggle_checkbox, { 
 vim.keymap.set('n', '<leader>ta', function()
   _G.toggle_autocomplete()
 end, { noremap = true, desc = '[t]oggle [a]utocompletion' })
+
+-- COPY utils
+vim.keymap.set('n', '<leader>yf', '<cmd>let @+ = expand("%")<cr>', { desc = 'Copy file path to clipboard' })
+vim.keymap.set('n', '<leader>yb', '<cmd>let @+ = expand("%:t:r")<cr>', { desc = 'Copy file basename to clipboard' })
 
 -- COPILOT
 _G.toggle_copilot = function()
