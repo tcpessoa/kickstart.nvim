@@ -1,5 +1,11 @@
 -- mini files
-vim.keymap.set('n', '<leader>o', '<cmd>lua MiniFiles.open()<cr>', { desc = 'Toggle Explorer' })
+vim.keymap.set('n', '<leader>o', function()
+  local MiniFiles = require 'mini.files'
+  local _ = MiniFiles.close() or MiniFiles.open(vim.api.nvim_buf_get_name(0), false)
+  vim.defer_fn(function()
+    MiniFiles.reveal_cwd()
+  end, 30)
+end, { desc = 'Toggle Explorer (current file)' })
 
 -- Package Manager (Mason)
 vim.keymap.set('n', '<leader>pm', '<cmd>Mason<cr>', { desc = 'Mason Installer' })
