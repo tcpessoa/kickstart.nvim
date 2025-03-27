@@ -1089,5 +1089,8 @@ require 'keymaps'
 -- Load custom snippets
 require('luasnip.loaders.from_vscode').lazy_load { paths = { '~/.config/nvim/snippets' } }
 
+-- convert csv copy pasted column to json array
+vim.fn.setreg('j', ':%s/\\r\\|\\s\\+$//g | :%s/.*/"&",/g | 1s/^/[\\r/ | $s/,$/\\r]/')
+
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
