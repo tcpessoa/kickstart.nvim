@@ -79,7 +79,14 @@ vim.keymap.set('n', '<leader>ta', function()
 end, { noremap = true, desc = '[t]oggle [a]utocompletion' })
 
 -- COPY utils
-vim.keymap.set('n', '<leader>yf', '<cmd>let @+ = expand("%")<cr>', { desc = 'Copy file path to clipboard' })
+vim.keymap.set('n', '<leader>yf', function()
+  local full_path = vim.fn.expand '%:p'
+  local cwd = vim.fn.getcwd()
+  -- Remove the cwd from the path to get the relative path
+  local rel_path = full_path:sub(#cwd + 2) -- +2 to account for the trailing slash
+  vim.fn.setreg('+', rel_path)
+  print('Copied: ' .. rel_path)
+end, { desc = 'Copy relative file path to clipboard' })
 vim.keymap.set('n', '<leader>yb', '<cmd>let @+ = expand("%:t:r")<cr>', { desc = 'Copy file basename to clipboard' })
 
 -- COPILOT
