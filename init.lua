@@ -99,7 +99,7 @@ vim.g.have_nerd_font = true
 --  For more options, you can see `:help option-list`
 
 -- Make line numbers default
-vim.opt.number = true
+vim.opt.number = false
 -- You can also add relative line numbers, to help with jumping.
 --  Experiment for yourself to see if you like it!
 -- vim.opt.relativenumber = true
@@ -337,16 +337,12 @@ require('lazy').setup({
       spec = {
         { '<leader>b', group = '[A]vante' },
         { '<leader>b', group = '[B]uffers' },
-        { '<leader>c', group = '[C]ode' },
-        { '<leader>d', group = '[D]ocument' },
         { '<leader>g', group = '[G]it' },
         { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } },
         { '<leader>l', group = 'Uti[L]s', mode = { 'n', 'v' } },
         { '<leader>p', group = '[P]ackages' },
-        { '<leader>r', group = '[R]ename' },
         { '<leader>s', group = '[S]earch' },
         { '<leader>t', group = '[T]oggle' },
-        { '<leader>w', group = '[W]orkspace' },
         { '<leader>x', group = '[X] Trouble' },
       },
     },
@@ -847,6 +843,8 @@ require('lazy').setup({
         opts = {},
       },
       'folke/lazydev.nvim',
+
+      'fang2hou/blink-copilot',
     },
     --- @module 'blink.cmp'
     --- @type blink.cmp.Config
@@ -892,9 +890,16 @@ require('lazy').setup({
       },
 
       sources = {
-        default = { 'lsp', 'path', 'snippets', 'lazydev' },
+        -- default = { 'lsp', 'path', 'snippets', 'lazydev', 'buffer', 'copilot' },
+        default = { 'lsp', 'path', 'snippets', 'lazydev', 'buffer', 'copilot' },
         providers = {
           lazydev = { module = 'lazydev.integrations.blink', score_offset = 100 },
+          copilot = {
+            name = 'copilot',
+            module = 'blink-copilot',
+            score_offset = 100,
+            async = true,
+          },
         },
       },
 
@@ -907,7 +912,7 @@ require('lazy').setup({
       -- the rust implementation via `'prefer_rust_with_warning'`
       --
       -- See :h blink-cmp-config-fuzzy for more information
-      fuzzy = { implementation = 'lua' },
+      fuzzy = { implementation = 'prefer_rust_with_warning' },
 
       -- Shows a signature help window while you type arguments for a function
       signature = { enabled = true },
@@ -999,15 +1004,6 @@ require('lazy').setup({
     --    - Incremental selection: Included, see `:help nvim-treesitter-incremental-selection-mod`
     --    - Show your current context: https://github.com/nvim-treesitter/nvim-treesitter-context
     --    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
-  },
-  {
-    'numToStr/Comment.nvim',
-    dependencies = 'JoosepAlviste/nvim-ts-context-commentstring',
-    config = function()
-      require('Comment').setup {
-        pre_hook = require('ts_context_commentstring.integrations.comment_nvim').create_pre_hook(),
-      }
-    end,
   },
 
   -- The following comments only work if you have downloaded the kickstart repo, not just copy pasted the
