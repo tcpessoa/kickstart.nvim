@@ -15,8 +15,6 @@ vim.keymap.set('n', '<leader>w', '<cmd>w<cr>', { desc = 'Save' })
 vim.keymap.set('n', '<leader>q', '<cmd>confirm q<cr>', { desc = 'Quit' })
 vim.keymap.set('n', '<leader>Q', '<cmd>confirm qall<cr>', { desc = 'Quit all' })
 vim.keymap.set('n', '<leader>n', '<cmd>enew<cr>', { desc = 'New File' })
-vim.keymap.set('n', '<C-s>', '<cmd>w!<cr>', { desc = 'Force write' })
-vim.keymap.set('n', '<C-q>', '<cmd>qa!<cr>', { desc = 'Force quit' })
 vim.keymap.set('n', '|', '<cmd>vsplit<cr>', { desc = 'Vertical Split' })
 vim.keymap.set('n', '\\', '<cmd>split<cr>', { desc = 'Horizontal Split' })
 
@@ -74,10 +72,6 @@ vim.keymap.set('n', '<leader>lg', require('utils').open_commit_files, { desc = '
 
 vim.keymap.set('n', '<leader>lt', require('utils').create_or_toggle_checkbox, { desc = '[T]oggle checkbox' })
 
-vim.keymap.set('n', '<leader>ta', function()
-  _G.toggle_autocomplete()
-end, { noremap = true, desc = '[t]oggle [a]utocompletion' })
-
 -- COPY utils
 vim.keymap.set('n', '<leader>yf', function()
   local full_path = vim.fn.expand '%:p'
@@ -110,7 +104,7 @@ end
 
 vim.keymap.set('n', '<leader>tc', function()
   _G.toggle_copilot()
-end, { noremap = true, desc = '[t]oggle [c]opilot' })
+end, { noremap = true, desc = '[T]oggle [c]opilot' })
 
 -- Diffview
 vim.keymap.set('n', '<leader>gd', '<cmd>DiffviewOpen<cr>', { desc = 'DiffviewOpen' })
