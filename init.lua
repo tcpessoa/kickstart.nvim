@@ -414,11 +414,11 @@ require('lazy').setup({
           layout_strategy = 'horizontal',
           layout_config = {
             horizontal = {
-              height = 0.95,
-              preview_height = 0.5,
-              mirror = false,
+              prompt_position = 'top',
+              height = 0.7,
             },
           },
+          sorting_strategy = 'ascending',
           path_display = {
             'smart', -- this is to show a shorter path of the file, useful for long paths
           },
@@ -890,7 +890,6 @@ require('lazy').setup({
       },
 
       sources = {
-        -- default = { 'lsp', 'path', 'snippets', 'lazydev', 'buffer', 'copilot' },
         default = { 'lsp', 'path', 'snippets', 'lazydev', 'buffer', 'copilot' },
         providers = {
           lazydev = { module = 'lazydev.integrations.blink', score_offset = 100 },
@@ -930,7 +929,7 @@ require('lazy').setup({
       -- Load the colorscheme here.
       -- Like many other themes, this one has different styles, and you could load
       -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-      vim.cmd.colorscheme 'kanagawa'
+      vim.cmd.colorscheme 'kanagawa-wave'
 
       -- You can configure highlights by doing something like:
       vim.cmd.hi 'Comment gui=none'
@@ -959,6 +958,12 @@ require('lazy').setup({
       require('mini.surround').setup()
 
       require('mini.files').setup()
+      vim.api.nvim_create_autocmd('User', {
+        pattern = 'MiniFilesActionRename',
+        callback = function(event)
+          Snacks.rename.on_rename_file(event.data.from, event.data.to)
+        end,
+      })
       require('mini.icons').setup()
 
       -- Simple and easy statusline.
