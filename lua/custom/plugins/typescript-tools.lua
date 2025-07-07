@@ -46,6 +46,7 @@ return {
         :find()
     end, {})
 
-    -- vim.keymap.set('n', '<leader>ts', '<cmd>TSTools<cr>', { desc = 'TypeScript [T]ool[S]' })
+    vim.keymap.set('n', '<leader>ts', '<cmd>TSTools<cr>', { desc = '[T]ype[S]cript Tools' })
+    vim.keymap.set('n', '<leader>tf', '<cmd>TSToolsRenameFile sync<cr>', { desc = 'TypeScript Rename [F]ile' })
   end,
 }
