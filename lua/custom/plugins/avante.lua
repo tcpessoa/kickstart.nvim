@@ -4,7 +4,13 @@ return {
   lazy = false,
   opts = {
     -- add any opts here
-    provider = 'claude',
+    provider = 'copilot',
+    auto_suggestions_provider = 'copilot',
+    providers = {
+      copilot = {
+        model = 'claude-sonnet-4',
+      },
+    },
   },
   -- if you want to download pre-built binary, then pass source=false. Make sure to follow instruction above.
   -- Also note that downloading prebuilt binary is a lot faster comparing to compiling from source.
