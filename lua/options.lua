@@ -73,6 +73,12 @@ vim.opt.hlsearch = true
 vim.opt.relativenumber = false
 vim.opt.number = false
 
+-- Tab/indent settings
+vim.opt.tabstop = 2        -- Number of spaces tabs display as
+vim.opt.shiftwidth = 2     -- Number of spaces for auto-indent
+vim.opt.softtabstop = 2    -- Number of spaces for <Tab> in insert mode
+vim.opt.expandtab = true   -- Convert tabs to spaces
+
 -- This is for Web Dev icons for NeoTree and Telescope
 vim.g.have_nerd_font = true
 
