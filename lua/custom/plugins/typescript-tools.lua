@@ -17,33 +17,34 @@ return {
         'TSToolsSortImports',
       }
 
-      require('telescope.pickers')
-        .new({}, {
-          prompt_title = 'TypeScript Tools Commands',
-          finder = require('telescope.finders').new_table {
-            results = ts_commands,
-          },
-          sorter = require('telescope.config').values.generic_sorter {},
-          attach_mappings = function(prompt_bufnr, map)
-            local actions = require 'telescope.actions'
-            actions.select_default:replace(function()
-              actions.close(prompt_bufnr)
-              local selection = require('telescope.actions.state').get_selected_entry()
+      local items = {}
+      for _, cmd in ipairs(ts_commands) do
+        table.insert(items, { text = cmd, cmd = cmd })
+      end
 
-              -- Make sure we're in a TypeScript/JavaScript buffer where the commands will work
-              local bufnr = vim.api.nvim_get_current_buf()
-              local ft = vim.api.nvim_buf_get_option(bufnr, 'filetype')
+      Snacks.picker {
+        prompt = 'TypeScript Tools Commands',
+        items = items,
+        format = function(item)
+          return { { item.text, 'Normal' } }
+        end,
+        confirm = function(picker, item)
+          picker:close()
+          if not item then
+            return
+          end
 
-              if vim.tbl_contains({ 'typescript', 'javascript', 'typescriptreact', 'javascriptreact' }, ft) then
-                vim.cmd(selection.value)
-              else
-                vim.notify('TypeScript Tools commands only work in TypeScript/JavaScript files', vim.log.levels.WARN)
-              end
-            end)
-            return true
-          end,
-        })
-        :find()
+          -- Make sure we're in a TypeScript/JavaScript buffer where the commands will work
+          local bufnr = vim.api.nvim_get_current_buf()
+          local ft = vim.api.nvim_get_option_value('filetype', { buf = bufnr })
+
+          if vim.tbl_contains({ 'typescript', 'javascript', 'typescriptreact', 'javascriptreact' }, ft) then
+            vim.cmd(item.cmd)
+          else
+            vim.notify('TypeScript Tools commands only work in TypeScript/JavaScript files', vim.log.levels.WARN)
+          end
+        end,
+      }
     end, {})
 
     vim.keymap.set('n', '<leader>ts', '<cmd>TSTools<cr>', { desc = '[T]ype[S]cript Tools' })
