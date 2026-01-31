@@ -343,4 +343,104 @@ function M.typecheck(scope)
   })
 end
 
+-- Detect test runner based on project files
+local function detect_test_runner()
+  if vim.fn.filereadable 'vitest.config.ts' == 1 or vim.fn.filereadable 'vitest.config.js' == 1 then
+    return 'vitest'
+  elseif vim.fn.filereadable 'bun.lockb' == 1 or vim.fn.filereadable 'bunfig.toml' == 1 then
+    return 'bun'
+  elseif vim.fn.filereadable 'jest.config.js' == 1 or vim.fn.filereadable 'jest.config.ts' == 1 then
+    return 'jest'
+  end
+  -- Check package.json for test script hints
+  if vim.fn.filereadable 'package.json' == 1 then
+    local content = vim.fn.readfile 'package.json'
+    local json = table.concat(content, '\n')
+    if json:match '"vitest"' then
+      return 'vitest'
+    elseif json:match '"bun test"' then
+      return 'bun'
+    elseif json:match '"jest"' then
+      return 'jest'
+    end
+  end
+  return 'vitest' -- default
+end
+
+-- Build test command based on runner and scope
+local function build_test_cmd(runner, scope, file)
+  local cmds = {
+    vitest = {
+      all = 'npx vitest run',
+      file = 'npx vitest run ' .. (file or ''),
+    },
+    jest = {
+      all = 'npx jest',
+      file = 'npx jest ' .. (file or ''),
+    },
+    bun = {
+      all = 'bun test',
+      file = 'bun test ' .. (file or ''),
+    },
+  }
+  return cmds[runner] and cmds[runner][scope] or cmds.vitest[scope]
+end
+
+-- Run tests (all or current file)
+function M.run_tests(scope)
+  scope = scope or 'all'
+  local runner = detect_test_runner()
+  local file = scope == 'file' and vim.fn.expand '%' or nil
+  local cmd = build_test_cmd(runner, scope, file)
+
+  vim.notify(string.format('Running %s (%s)...', runner, scope), vim.log.levels.INFO)
+
+  -- Run in a terminal split
+  vim.cmd('botright split | terminal ' .. cmd)
+  vim.cmd 'startinsert'
+end
+
+-- Run tests with picker to choose runner
+function M.run_tests_picker()
+  local file = vim.fn.expand '%'
+  local detected = detect_test_runner()
+
+  local items = {
+    { text = 'Vitest: All', runner = 'vitest', scope = 'all' },
+    { text = 'Vitest: Current file', runner = 'vitest', scope = 'file', file = file },
+    { text = 'Jest: All', runner = 'jest', scope = 'all' },
+    { text = 'Jest: Current file', runner = 'jest', scope = 'file', file = file },
+    { text = 'Bun: All', runner = 'bun', scope = 'all' },
+    { text = 'Bun: Current file', runner = 'bun', scope = 'file', file = file },
+  }
+
+  -- Move detected runner to top
+  table.sort(items, function(a, b)
+    if a.runner == detected and b.runner ~= detected then
+      return true
+    elseif a.runner ~= detected and b.runner == detected then
+      return false
+    end
+    return false
+  end)
+
+  Snacks.picker {
+    prompt = 'Run tests (' .. detected .. ' detected)',
+    items = items,
+    format = function(item)
+      local hl = item.runner == detected and 'String' or 'Normal'
+      return { { item.text, hl } }
+    end,
+    confirm = function(picker, item)
+      picker:close()
+      if not item then
+        return
+      end
+      local cmd = build_test_cmd(item.runner, item.scope, item.file)
+      vim.cmd('botright split | terminal ' .. cmd)
+      vim.cmd 'startinsert'
+    end,
+  }
+end
+
 return M

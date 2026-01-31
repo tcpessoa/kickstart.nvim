@@ -111,3 +111,14 @@ end, { desc = '[T]ypecheck [P]roject' })
 vim.keymap.set('n', '<leader>tf', function()
   require('utils').typecheck 'file'
 end, { desc = '[T]ypecheck [F]ile' })
+
+-- Tests (auto-detects vitest/jest/bun)
+vim.keymap.set('n', '<leader>Ta', function()
+  require('utils').run_tests 'all'
+end, { desc = '[T]est [A]ll' })
+vim.keymap.set('n', '<leader>Tf', function()
+  require('utils').run_tests 'file'
+end, { desc = '[T]est [F]ile' })
+vim.keymap.set('n', '<leader>Ts', function()
+  require('utils').run_tests_picker()
+end, { desc = '[T]est [S]elect runner' })
