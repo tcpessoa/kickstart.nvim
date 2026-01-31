@@ -278,4 +278,69 @@ function M.create_or_toggle_checkbox()
   end
 end
 
+-- Parse tsc output and populate quickfix
+local function parse_tsc_output(data)
+  local items = {}
+  for _, line in ipairs(data) do
+    -- Match: path/file.ts(line,col): error TS1234: message
+    local file, lnum, col, msg = line:match '^([^(]+)%((%d+),(%d+)%):%s*(.*)$'
+    if file and lnum and col then
+      table.insert(items, {
+        filename = file,
+        lnum = tonumber(lnum),
+        col = tonumber(col),
+        text = msg,
+        type = msg:match '^error' and 'E' or 'W',
+      })
+    end
+  end
+  return items
+end
+
+-- TypeScript typecheck (project or file)
+function M.typecheck(scope)
+  scope = scope or 'project'
+  local cmd = 'npx tsc --noEmit'
+  if scope == 'file' then
+    local file = vim.fn.expand '%'
+    cmd = 'npx tsc --noEmit ' .. vim.fn.shellescape(file)
+  end
+
+  vim.fn.setqflist({}, 'r', { title = 'TypeScript (' .. scope .. ')' })
+  vim.notify('Running tsc --noEmit (' .. scope .. ')...', vim.log.levels.INFO)
+
+  local output = {}
+  vim.fn.jobstart(cmd, {
+    stdout_buffered = true,
+    stderr_buffered = true,
+    on_stdout = function(_, data)
+      if data then
+        vim.list_extend(output, data)
+      end
+    end,
+    on_stderr = function(_, data)
+      if data then
+        vim.list_extend(output, data)
+      end
+    end,
+    on_exit = function(_, code)
+      local items = parse_tsc_output(output)
+      vim.schedule(function()
+        if #items > 0 then
+          vim.fn.setqflist({}, 'r', { title = 'TypeScript (' .. scope .. ')', items = items })
+          vim.cmd 'copen'
+          vim.notify(string.format('TypeScript: %d error(s) found', #items), vim.log.levels.WARN)
+        else
+          vim.fn.setqflist({}, 'r', { title = 'TypeScript (' .. scope .. ')' })
+          if code == 0 then
+            vim.notify('TypeScript: No errors!', vim.log.levels.INFO)
+          else
+            vim.notify('TypeScript: tsc exited with code ' .. code, vim.log.levels.ERROR)
+          end
+        end
+      end)
+    end,
+  })
+end
+
 return M

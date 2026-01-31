@@ -103,3 +103,11 @@ vim.keymap.set('n', '<leader>gh', '<cmd>DiffviewFileHistory<cr>', { desc = 'Diff
 vim.keymap.set('n', '<leader>gf', '<cmd>DiffviewFileHistory %<cr>', { desc = 'DiffviewFileHistory (current file)' })
 vim.keymap.set('n', '<leader>gr', '<cmd>DiffviewRefresh<cr>', { desc = 'DiffviewRefresh' })
 vim.keymap.set('n', '<leader>gt', '<cmd>DiffviewToggleFiles<cr>', { desc = 'DiffviewToggleFiles' })
+
+-- TypeScript
+vim.keymap.set('n', '<leader>tp', function()
+  require('utils').typecheck 'project'
+end, { desc = '[T]ypecheck [P]roject' })
+vim.keymap.set('n', '<leader>tf', function()
+  require('utils').typecheck 'file'
+end, { desc = '[T]ypecheck [F]ile' })
