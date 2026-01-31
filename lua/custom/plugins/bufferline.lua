@@ -1,9 +1,12 @@
 return {
   'akinsho/bufferline.nvim',
-  requires = 'nvim-tree/nvim-web-devicons',
   config = function()
     require('bufferline').setup {
       options = {
+        get_element_icon = function(element)
+          local icon, hl = MiniIcons.get('file', element.path)
+          return icon, hl
+        end,
         offsets = { { filetype = 'NvimTree', text = 'File Explorer', padding = 1 } },
         buffer_close_icon = 'x',
         modified_icon = '●',
