@@ -39,67 +39,58 @@ function M.insert_snippet(snippet_name, from_visual)
 end
 
 -- Run a script from the `Makefile` or `package.json`
--- This function will open a telescope picker with all the scripts found in the Makefile or package.json
+-- This function will open a Snacks picker with all the scripts found in the Makefile or package.json
 -- It runs as a detached job in a new tmux split
 function M.fzf_run()
   local makefile_exists = vim.fn.filereadable 'Makefile' == 1
   local package_json_exists = vim.fn.filereadable 'package.json' == 1
 
-  local scripts = {}
+  local items = {}
 
   if makefile_exists then
     local makefile_targets = vim.fn.systemlist "awk -F: '/^[a-zA-Z0-9_-]+:/' Makefile | awk '{print $1}'"
     for _, target in ipairs(makefile_targets) do
-      table.insert(scripts, 'Make: ' .. target)
+      table.insert(items, { text = 'Make: ' .. target, type = 'make', target = target })
     end
   end
 
   if package_json_exists then
     local package_json_scripts = vim.fn.systemlist "jq -r '.scripts | keys[]' package.json"
     for _, script in ipairs(package_json_scripts) do
-      table.insert(scripts, 'NPM: ' .. script)
+      table.insert(items, { text = 'NPM: ' .. script, type = 'npm', target = script })
     end
   end
 
-  if #scripts == 0 then
+  if #items == 0 then
     vim.notify('No Makefile or package.json scripts found', vim.log.levels.WARN)
     return
   end
 
-  require('telescope.pickers')
-    .new({}, {
-      prompt_title = 'Select script',
-      finder = require('telescope.finders').new_table {
-        results = scripts,
-      },
-      sorter = require('telescope.config').values.generic_sorter {},
-      attach_mappings = function(prompt_bufnr, map)
-        local actions = require 'telescope.actions'
-        local action_state = require 'telescope.actions.state'
+  Snacks.picker {
+    prompt = 'Select script',
+    items = items,
+    format = function(item)
+      return { { item.text, 'Normal' } }
+    end,
+    confirm = function(picker, item)
+      picker:close()
+      if not item then
+        return
+      end
 
-        actions.select_default:replace(function()
-          actions.close(prompt_bufnr)
-          local selected_script = action_state.get_selected_entry()[1]
-          local cmd
+      local cmd
+      if item.type == 'make' then
+        cmd = 'tmux split-window -h "make ' .. item.target .. ' && read"'
+      elseif item.type == 'npm' then
+        cmd = 'tmux split-window -h "npm run ' .. item.target .. ' && read"'
+      else
+        vim.notify('Selected script not found in Makefile or package.json', vim.log.levels.ERROR)
+        return
+      end
 
-          if selected_script:match '^Make: ' then
-            local target = selected_script:sub(7)
-            cmd = 'tmux split-window -h "make ' .. target .. ' && read"'
-          elseif selected_script:match '^NPM: ' then
-            local script = selected_script:sub(6)
-            cmd = 'tmux split-window -h "npm run ' .. script .. ' && read"'
-          else
-            vim.notify('Selected script not found in Makefile or package.json', vim.log.levels.ERROR)
-            return
-          end
-
-          vim.fn.jobstart(cmd, { detach = true })
-        end)
-
-        return true
-      end,
-    })
-    :find()
+      vim.fn.jobstart(cmd, { detach = true })
+    end,
+  }
 end
 
 -- Base function that handles the common logic
@@ -234,32 +225,19 @@ end
 
 -- open_commit_files: Open the files modified in a commit
 function M.open_commit_files()
-  local actions = require 'telescope.actions'
-  local action_state = require 'telescope.actions.state'
-  local previewers = require 'telescope.previewers'
-  local files_previewer = previewers.new_buffer_previewer {
-    title = 'Modified Files',
-    define_preview = function(self, entry)
-      local hash = entry.value
+  Snacks.picker.git_log {
+    confirm = function(picker, item)
+      picker:close()
+      if not item then
+        return
+      end
+      local hash = item.commit
       local files = vim.fn.systemlist('git diff-tree --no-commit-id --name-only -r ' .. hash)
-      local content = 'Modified files:\n\n' .. table.concat(files, '\n')
-      vim.api.nvim_buf_set_lines(self.state.bufnr, 0, -1, false, vim.split(content, '\n'))
-    end,
-  }
-
-  require('telescope.builtin').git_commits {
-    previewer = files_previewer,
-    attach_mappings = function(_, map)
-      map('i', '<CR>', function(prompt_bufnr)
-        local selection = action_state.get_selected_entry()
-        local hash = selection.value
-        actions.close(prompt_bufnr)
-        local files = vim.fn.systemlist('git diff-tree --no-commit-id --name-only -r ' .. hash)
-        for _, file in ipairs(files) do
+      for _, file in ipairs(files) do
+        if file ~= '' then
           vim.cmd('edit ' .. file)
         end
-      end)
-      return true
+      end
     end,
   }
 end

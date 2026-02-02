@@ -112,6 +112,13 @@ return {
       end,
       desc = '[ ] Find existing buffers',
     },
+    {
+      '<leader>ss',
+      function()
+        Snacks.picker.pickers()
+      end,
+      desc = '[S]earch [S]elect (Snacks pickers)',
+    },
     -- Git
     {
       '<leader>gl',
