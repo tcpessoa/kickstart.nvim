@@ -146,39 +146,6 @@ console.log('Object loaded as "obj". You can explore it.');
   end)
 end
 
--- Open the current file with the system's default application
-function M.system_open(path)
-  if not path then
-    path = vim.fn.expand '<cfile>'
-  elseif not path:match '%w+:' then
-    path = vim.fn.expand(path)
-  end
-  -- TODO: remove deprecated method check after dropping support for neovim v0.9
-  if vim.ui.open then
-    return vim.ui.open(path)
-  end
-  local cmd
-  if vim.fn.has 'mac' == 1 then
-    cmd = { 'open' }
-  elseif vim.fn.has 'win32' == 1 then
-    if vim.fn.executable 'rundll32' then
-      cmd = { 'rundll32', 'url.dll,FileProtocolHandler' }
-    else
-      cmd = { 'cmd.exe', '/K', 'explorer' }
-    end
-  elseif vim.fn.has 'unix' == 1 then
-    if vim.fn.executable 'explorer.exe' == 1 then
-      cmd = { 'explorer.exe' }
-    elseif vim.fn.executable 'xdg-open' == 1 then
-      cmd = { 'xdg-open' }
-    end
-  end
-  if not cmd then
-    vim.notify('Available system opening tool not found!', vim.log.levels.ERROR)
-  end
-  vim.fn.jobstart(vim.list_extend(cmd, { path }), { detach = true })
-end
-
 function M.escape_for_regex()
   -- Reselect the visual selection
   vim.cmd 'normal! gv'
