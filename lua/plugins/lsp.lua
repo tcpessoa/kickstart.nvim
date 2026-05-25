@@ -100,6 +100,7 @@ return {
             },
           },
         },
+        marksman = {},
         yamlls = {
           settings = {
             yaml = {
