@@ -209,6 +209,102 @@ function M.open_commit_files()
   }
 end
 
+-- Fuzzy-search zsh history and drop the chosen command into the `:!` cmdline.
+-- Nothing is executed: you land at `:!<cmd>` ready to edit (cmdline/`q:` motions)
+-- and run with <CR>. No terminal spawn, so it's instant.
+function M.shell_history_picker()
+  -- Resolve the histfile: $HISTFILE if exported, else the usual locations.
+  local candidates = { vim.env.HISTFILE, '~/.config/zsh/.zsh_history', '~/.zsh_history' }
+  local histfile
+  for _, path in ipairs(candidates) do
+    if path then
+      local expanded = vim.fn.expand(path)
+      if vim.fn.filereadable(expanded) == 1 then
+        histfile = expanded
+        break
+      end
+    end
+  end
+  if not histfile then
+    vim.notify('No zsh history file found', vim.log.levels.WARN)
+    return
+  end
+
+  local lines = vim.fn.readfile(histfile)
+  local seen = {}
+  local items = {}
+  -- Walk newest-first (histfile is appended chronologically) and dedup.
+  for i = #lines, 1, -1 do
+    -- Strip the extended-history metadata prefix ": <ts>:<dur>;" when present.
+    local cmd = vim.trim((lines[i]:gsub('^:%s*%d+:%d+;', '')))
+    if cmd ~= '' and not seen[cmd] then
+      seen[cmd] = true
+      table.insert(items, { text = cmd })
+    end
+  end
+
+  -- Drop `line` into the `:!` cmdline (editable, not executed). Escapes the
+  -- chars `:!` would otherwise expand: % (file), # (alt file), ! (prev cmd).
+  local function to_cmdline(line)
+    vim.schedule(function()
+      vim.api.nvim_feedkeys(':!' .. line:gsub('[%%#!]', '\\%0'), 'n', false)
+    end)
+  end
+
+  -- Single-quote for the shell, so the command lands intact inside `zsh -ic '...'`.
+  local function squote(s)
+    return "'" .. s:gsub("'", [['\'']]) .. "'"
+  end
+
+  Snacks.picker {
+    -- Compact dropdown, no (empty) preview pane. Key hints live on the bottom
+    -- border (a footer, not a pane — zero extra rows); `?` opens the full overlay.
+    title = ' Shell history ',
+    layout = {
+      preset = 'select',
+      layout = {
+        footer = ' <CR> run (<C-f> vim edit) · <C-s> alias/fn · ? help ',
+        footer_pos = 'center',
+      },
+    },
+    items = items,
+    -- Bash treesitter highlighting; cached per item and only run for visible
+    -- rows, so it's free even across thousands of history entries.
+    format = function(item)
+      local ret = {}
+      Snacks.picker.highlight.format(item, item.text, ret, { lang = 'bash' })
+      return ret
+    end,
+    -- <CR>: plain `:!cmd` (fast, non-interactive shell).
+    confirm = function(picker, item)
+      picker:close()
+      if not item then
+        return
+      end
+      to_cmdline(item.text)
+    end,
+    actions = {
+      -- <C-s>: wrap in `zsh -ic '...'` so aliases/functions (e.g. gsync) resolve.
+      run_interactive = function(picker, item)
+        item = item or picker:current()
+        picker:close()
+        if not item then
+          return
+        end
+        -- `zsh -ic` loads aliases/functions; strip OMZ's harmless zle-init noise.
+        to_cmdline('zsh -ic ' .. squote(item.text) .. [[ 2>&1 | grep -v "can't change option: zle"]])
+      end,
+    },
+    win = {
+      input = {
+        keys = {
+          ['<c-s>'] = { 'run_interactive', mode = { 'i', 'n' }, desc = 'Run via interactive zsh (aliases/functions)' },
+        },
+      },
+    },
+  }
+end
+
 function M.create_or_toggle_checkbox()
   local line = vim.api.nvim_get_current_line()
   if not line:match '- %[.?%]' then

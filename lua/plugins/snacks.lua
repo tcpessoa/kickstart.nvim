@@ -33,6 +33,7 @@ return {
     { '<leader><leader>', function() Snacks.picker.buffers() end, desc = '[ ] Find existing buffers' },
     { '<leader>ss', function() Snacks.picker.pickers() end, desc = '[S]earch [S]elect (Snacks pickers)' },
     { '<leader>sm', function() Snacks.picker.git_status() end, desc = '[S]earch [M]odified files (git status)' },
+    { '<leader>sH', function() require('utils').shell_history_picker() end, desc = '[S]earch shell [H]istory' },
 
     -- Git
     { '<leader>gl', function() Snacks.lazygit() end, desc = '[G]it [L]azygit' },
