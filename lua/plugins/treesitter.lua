@@ -27,7 +27,6 @@ return {
       'query',
       'ruby',
       'sql',
-      'tmux',
       'toml',
       'tsx',
       'typescript',
