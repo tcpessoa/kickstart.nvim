@@ -319,6 +319,65 @@ function M.create_or_toggle_checkbox()
   end
 end
 
+-- Nearest `node_modules` (walking up from `path`) that has a `typescript`
+-- install; handles workspaces where subpackages have their own tsconfig roots
+local function ts_install(path)
+  if not path then
+    return nil
+  end
+  local dirs = { vim.fs.normalize(path) }
+  for dir in vim.fs.parents(dirs[1]) do
+    table.insert(dirs, dir)
+  end
+  for _, dir in ipairs(dirs) do
+    if vim.fn.isdirectory(vim.fs.joinpath(dir, 'node_modules', 'typescript')) == 1 then
+      return vim.fs.joinpath(dir, 'node_modules')
+    end
+  end
+  return nil
+end
+
+-- Major TypeScript version visible from `path` (buffer path or dir), or nil.
+-- TS 7 is the native (Go) rewrite: no `tsserver` binary, LSP via `tsc --lsp --stdio`
+function M.ts_major(path)
+  local install = ts_install(path)
+  if not install then
+    return nil
+  end
+  local ok, lines = pcall(vim.fn.readfile, vim.fs.joinpath(install, 'typescript', 'package.json'))
+  if not ok or #lines == 0 then
+    return nil
+  end
+  local ok2, pkg = pcall(vim.json.decode, table.concat(lines, '\n'))
+  if not ok2 or type(pkg) ~= 'table' or type(pkg.version) ~= 'string' then
+    return nil
+  end
+  return tonumber(pkg.version:match '^(%d+)')
+end
+
+-- Start the TS 7 native language server on a buffer, using the nearest
+-- `node_modules/.bin/tsc` so diagnostics match the project's toolchain
+function M.start_tsgo(bufnr)
+  bufnr = bufnr or 0
+  local install = ts_install(vim.api.nvim_buf_get_name(bufnr))
+  if not install then
+    return
+  end
+  local tsc = vim.fs.joinpath(install, '.bin', 'tsc')
+  if vim.fn.executable(tsc) ~= 1 then
+    return
+  end
+  local root = vim.fs.root(bufnr, { 'tsconfig.json', 'package.json' }) or vim.fn.getcwd()
+  local caps_ok, blink = pcall(require, 'blink.cmp')
+  local capabilities = caps_ok and blink.get_lsp_capabilities() or nil
+  vim.lsp.start({
+    name = 'tsgo',
+    cmd = { tsc, '--lsp', '--stdio' },
+    root_dir = root,
+    capabilities = capabilities,
+  }, { bufnr = bufnr })
+end
+
 -- Parse tsc output and populate quickfix
 local function parse_tsc_output(data)
   local items = {}
